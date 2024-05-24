@@ -47,7 +47,7 @@ def readDataGromacs(P):
          try:
             self.state = l[0] = int(l[0]) # Will be of use for selective MBAR analysis.
          except:
-            print "\nERROR!\nFile's prefix should be followed by a numerical character. Cannot sort the files.\n"
+            print("\nERROR!\nFile's prefix should be followed by a numerical character. Cannot sort the files.\n")
             raise
          return tuple(l)
  
@@ -62,7 +62,7 @@ def readDataGromacs(P):
          self.bExpanded  = False
          self.temperature= False
  
-         print "Reading metadata from %s..." % self.filename
+         print("Reading metadata from %s..." % self.filename)
          with open(self.filename,'r') as infile:
             for line in infile:
  
@@ -139,7 +139,7 @@ def readDataGromacs(P):
                   u_klt[state, s1:s2, nsnapshots_l[state]:nsnapshots_r[state]] = P.beta * data[mask_read_uklt, :]
             return
  
-         print "Loading in data from %s (%s) ..." % (self.filename, "all states" if self.bExpanded else 'state %d' % state)
+         print("Loading in data from %s (%s) ..." % (self.filename, "all states" if self.bExpanded else 'state %d' % state))
          data = numpy.fromiter(iter_func(), dtype=float)
          if not self.len_first == self.len_last:
             data = data[: -self.len_last]
@@ -166,7 +166,7 @@ def readDataGromacs(P):
                   dt = float(unixlike.grepPy(infile, s='delta-t').split()[-1])
                   WLstep = int(unixlike.grepPy(infile, s='equilibrated').split()[1].replace(':', ''))
             except:
-               print "\nERROR!\nThe Wang-Landau weights haven't equilibrated yet.\nIf you comprehend the consequences,\nrerun with the -x flag and the data\nwill be discarded to 'equiltime'.\n"
+               print("\nERROR!\nThe Wang-Landau weights haven't equilibrated yet.\nIf you comprehend the consequences,\nrerun with the -x flag and the data\nwill be discarded to 'equiltime'.\n")
                raise
             WLtime = WLstep * dt
          else:
@@ -182,7 +182,7 @@ def readDataGromacs(P):
    n_files = len(fs)
    
    #NML: Clean up corrupted lines
-   print 'Checking for corrupted xvg files....'
+   print('Checking for corrupted xvg files....')
    xvgs = [filename for filename in sorted(glob( '%s/%s*%s' % datafile_tuple )) ]
    for f in xvgs:
       removeCorruptLines(f,f)
@@ -196,7 +196,7 @@ def readDataGromacs(P):
       try:
          lambdas_to_skip = [int(l) for l in unixlike.trPy(P.bSkipLambdaIndex, '-').split()]
       except:
-         print '\nERROR!\nDo not understand the format of the string that follows -k.\nIt should be a string of lambda indices linked by "-".\n'
+         print('\nERROR!\nDo not understand the format of the string that follows -k.\nIt should be a string of lambda indices linked by "-".\n')
          raise
       fs = [f for f in fs if not f.state in lambdas_to_skip]
       n_files = len(fs)
@@ -228,9 +228,9 @@ def readDataGromacs(P):
             P.beta *= P.temperature/temperature_float
             P.beta_report *= P.temperature/temperature_float
             P.temperature = temperature_float
-            print "Temperature is %s K." % temperature
+            print("Temperature is %s K." % temperature)
          else:
-            print "Temperature not present in xvg files. Using %g K." % P.temperature
+            print("Temperature not present in xvg files. Using %g K." % P.temperature)
 
          n_components = len(lv_names)
          bPV = f.bPV
@@ -266,16 +266,16 @@ def readDataGromacs(P):
       else:
          lv = lv[ndE_unique.argmax()]
       if 'MBAR' in P.methods:
-         print "\nNumber of states is NOT the same for all simulations; I'm assuming that we only evaluate"
-         print "nearest neighbor states, and so cannot use MBAR, removing the method."
+         print("\nNumber of states is NOT the same for all simulations; I'm assuming that we only evaluate")
+         print("nearest neighbor states, and so cannot use MBAR, removing the method.")
          P.methods.remove('MBAR')
-      print "\nStitching together the dhdl files. I am assuming that the files are numbered in order of"
-      print "increasing lambda; otherwise, results will not be correct."
+      print("\nStitching together the dhdl files. I am assuming that the files are numbered in order of")
+      print("increasing lambda; otherwise, results will not be correct.")
    
    else:
-      print "The files contain the number of the dE columns I cannot deal with; will terminate.\n\n%-10s %s " % ("# of dE's", "File")
+      print("The files contain the number of the dE columns I cannot deal with; will terminate.\n\n%-10s %s " % ("# of dE's", "File"))
       for nf, f in enumerate(fs):
-         print "%6d     %s" % (ndE[nf], f.filename)
+         print("%6d     %s" % (ndE[nf], f.filename))
       raise SystemExit("\nERROR!\nThere are more than 3 groups of files (%s, to be exact) each having different number of the dE columns; I cannot combine the data." % len(ndE_unique))
    
    lv = numpy.array(lv, float) # *** Lambda vectors.
@@ -291,8 +291,14 @@ def readDataGromacs(P):
 
    for nf, f in enumerate(fs):
 
-      f.len_first, f.len_last = (len(line.split()) for line in unixlike.tailPy(f.filename, 2))
-      bLenConsistency = (f.len_first != f.len_last)
+      with open(f.filename, 'rb') as file:
+         last_lines = unixlike.tailPy(file, 2)
+         decoded_lines = [line.decode('utf-8') for line in last_lines]  # Decode binary lines to strings
+         f.len_first, f.len_last = (len(line.split()) for line in decoded_lines)  # Split and get lengths
+         bLenConsistency = (f.len_first != f.len_last)
+
+         # f.len_first, f.len_last = (len(line.split()) for line in unixlike.tailPy(f.filename, 2))
+         # bLenConsistency = (f.len_first != f.len_last)
          
       if f.bExpanded:
 
@@ -323,7 +329,7 @@ def readDataGromacs(P):
          f.skip_lines   += equilsnapshots
          nsnapshots[nf,nf] += unixlike.wcPy(f.filename) - f.skip_lines - 1*bLenConsistency
    
-      print "First %s ps (%s snapshots) will be discarded due to equilibration from file %s..." % (equiltime, equilsnapshots, f.filename)
+      print("First %s ps (%s snapshots) will be discarded due to equilibration from file %s..." % (equiltime, equilsnapshots, f.filename))
    
    #===================================================================================================
    # Preliminaries IV: Load in equilibrated data.
@@ -339,3 +345,4 @@ def readDataGromacs(P):
       nsnapshots_r = nsnapshots[:nf+2].sum(axis=0)
       f.iter_loadtxt(nf)
    return nsnapshots.sum(axis=0), lv, dhdlt, u_klt
+
