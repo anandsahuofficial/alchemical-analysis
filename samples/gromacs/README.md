@@ -33,7 +33,7 @@ is default for GROMACS. MBAR, however, cannot be run on this
 restricted data set.  The difference between these two files is
 automatically recognized. For an example, try:
 
-`python alchemical_analysis.py -d data/3-methylindole-11steps-neighbors`
+`python ../../alchemical_analysis/alchemical_analysis.py -d data/3-methylindole-11steps-neighbors`
 
 Note how all the output results are the same _except_ for MBAR, which
 is omitted from the calculation.
