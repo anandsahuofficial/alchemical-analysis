@@ -44,11 +44,11 @@ def tailPy(f, nlines, LENB=1024):
       else:
          f.seek(0,0)
          excerpt.append(f.read(sizeb))
-      ll = excerpt[-1].count('\n')
+      ll = excerpt[-1].count(b'\n')
       n_togo -= ll
       sizeb -= LENB
       i += 1
-   return ''.join(excerpt[::-1]).splitlines()[-nlines:]
+   return b''.join(excerpt[::-1]).splitlines()[-nlines:]
 
 def grepFromSection(f, section, *stringhe, **kwargs):
    """From section 'section' of file 'f' extract the values of strings 'stringhe'."""
@@ -65,12 +65,12 @@ def grepFromSection(f, section, *stringhe, **kwargs):
          try:
             line = f.next() # The first line after the line with 'section'.
             i += 1
-	    while not line.strip('\n '): # Skip blank lines at the beginning.
+            while not line.strip('\n '): # Skip blank lines at the beginning.
                line = f.next()
                i += 1
             if not f_tell_0:
                i += 1 # To compensate for the uncounted line.
-	    while line.strip('\n '): # Search until a blank line is encountered.
+            while line.strip('\n '): # Search until a blank line is encountered.
                line = trPy(line, '[,:=]')
                for s in stringhe:
                   if s in line:
@@ -81,6 +81,6 @@ def grepFromSection(f, section, *stringhe, **kwargs):
             pass
          if not len(found)==len(stringhe):
             raise SystemExit("\nERROR!\nSection '%s' of file '%s' does not contain \
-string(s): %s." % (section, f.name, ', '.join([s for s in stringhe if s not in found])))
+                              string(s): %s." % (section, f.name, ', '.join([s for s in stringhe if s not in found])))
          return i+n, list(found[s] for s in stringhe)
    raise SystemExit("\nERROR!\nThere is no section '%s' in file '%s'." % (section, f.name))
