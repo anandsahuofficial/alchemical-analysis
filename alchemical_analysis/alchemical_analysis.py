@@ -169,7 +169,7 @@ def uncorrelate(sta, fin, do_dhdl=False):
    g = numpy.zeros(K,float) # autocorrelation times for the data
    if do_dhdl:
       dhdl = numpy.zeros([K,n_components,max(fin-sta)], float) #dhdl is value for dhdl for each component in the file at each time.
-      print "\n\nNumber of correlated and uncorrelated samples:\n\n%6s %12s %12s %12s\n" % ('State', 'N', 'N_k', 'N/N_k')
+      print("\n\nNumber of correlated and uncorrelated samples:\n\n%6s %12s %12s %12s\n" % ('State', 'N', 'N_k', 'N/N_k'))
 
    UNCORR_OBSERVABLE = {'Gromacs':P.uncorr, 'Amber':'dhdl', 'Sire':'dhdl', 'Desmond':'dE'}[P.software.title()]
 
@@ -199,7 +199,7 @@ def uncorrelate(sta, fin, do_dhdl=False):
          # Handle case where we end up with too few.
          if N_uncorr < P.uncorr_threshold:
             if do_dhdl:
-               print "WARNING: Only %s uncorrelated samples found at lambda number %s; proceeding with analysis using correlated samples..." % (N_uncorr, k)
+               print("WARNING: Only %s uncorrelated samples found at lambda number %s; proceeding with analysis using correlated samples..." % (N_uncorr, k))
             indices = sta[k] + numpy.arange(len(dhdl_sum))
             N = len(indices)
          else:
@@ -209,7 +209,7 @@ def uncorrelate(sta, fin, do_dhdl=False):
             for l in range(K):
                u_kln[k,l,0:N] = u_klt[k,l,indices]
          if do_dhdl:
-            print "%6s %12s %12s %12.2f" % (k, N_uncorr, N_k[k], g[k])
+            print("%6s %12s %12s %12.2f" % (k, N_uncorr, N_k[k], g[k]))
             for n in range(n_components):
                dhdl[k,n,0:N] = dhdlt[k,n,indices]
 
@@ -227,7 +227,7 @@ def uncorrelate(sta, fin, do_dhdl=False):
          # Handle case where we end up with too few.
          if N < P.uncorr_threshold:
             if do_dhdl:
-               print "WARNING: Only %s uncorrelated samples found at lambda number %s; proceeding with analysis using correlated samples..." % (N, k)
+               print("WARNING: Only %s uncorrelated samples found at lambda number %s; proceeding with analysis using correlated samples..." % (N, k))
             indices = sta[k] + numpy.arange(len(dhdl_sum))
             N = len(indices)
          N_k[k] = N # Store the number of uncorrelated samples from state k.
@@ -235,7 +235,7 @@ def uncorrelate(sta, fin, do_dhdl=False):
             for l in range(K):
                u_kln[k,l,0:N] = u_klt[k,l,indices]
          if do_dhdl:
-            print "%6s %12s %12s %12.2f" % (k, fin[k], N_k[k], g[k])
+            print("%6s %12s %12s %12.2f" % (k, fin[k], N_k[k], g[k]))
             for n in range(n_components):
                dhdl[k,n,0:N] = dhdlt[k,n,indices]
 
@@ -253,7 +253,7 @@ def uncorrelate(sta, fin, do_dhdl=False):
          N = len(indices) # number of uncorrelated samples
          # Handle case where we end up with too few.
          if N < P.uncorr_threshold:
-            print "WARNING: Only %s uncorrelated samples found at lambda number %s; proceeding with analysis using correlated samples..." % (N, k)
+            print("WARNING: Only %s uncorrelated samples found at lambda number %s; proceeding with analysis using correlated samples..." % (N, k))
             indices = sta[k] + numpy.arange(len(dE))
             N = len(indices)
          N_k[k] = N # Store the number of uncorrelated samples from state k.
@@ -298,7 +298,7 @@ def estimatewithMBAR(u_kln, N_k, reltol, regular_estimate=False):
          ks = [int(l) for l in P.bSkipLambdaIndex.split('-')]
          ks = numpy.delete(numpy.arange(K+len(ks)), ks)
       else:
-         ks = range(K)
+         ks = list(range(K))
       for i in range(K):
          pl.annotate(ks[i], xy=(i+0.5, 1), xytext=(i+0.5, K+0.5), size=10, textcoords=('data', 'data'), va='center', ha='center', color='k')
          pl.annotate(ks[i], xy=(-0.5, K-(j+0.5)), xytext=(-0.5, K-(i+0.5)), size=10, textcoords=('data', 'data'), va='center', ha='center', color='k')
@@ -308,8 +308,8 @@ def estimatewithMBAR(u_kln, N_k, reltol, regular_estimate=False):
       pl.plot([0,0], [0,K], 'k-', lw=2.0, solid_capstyle='butt')
       pl.plot([0,K], [K,K], 'k-', lw=2.0, solid_capstyle='butt')
 
-      cx = sorted(2*range(K+1))
-      cy = sorted(2*range(K+1), reverse=True)
+      cx = sorted(2*list(range(K+1)))
+      cy = sorted(2*list(range(K+1)), reverse=True)
       pl.plot(cx[2:-1], cy[1:-2], 'k-', lw=2.0)
       pl.plot(numpy.array(cx[2:-3])+1, cy[1:-4], 'k-', lw=2.0)
       pl.plot(cx[1:-2], numpy.array(cy[:-3])-1, 'k-', lw=2.0)
@@ -322,23 +322,23 @@ def estimatewithMBAR(u_kln, N_k, reltol, regular_estimate=False):
       return
 
    if regular_estimate:
-      print "\nEstimating the free energy change with MBAR..."
+      print("\nEstimating the free energy change with MBAR...")
    MBAR = pymbar.mbar.MBAR(u_kln, N_k, verbose = P.verbose, relative_tolerance = reltol, initialize = P.init_with)
    # Get matrix of dimensionless free energy differences and uncertainty estimate.
    (Deltaf_ij, dDeltaf_ij, theta_ij ) = MBAR.getFreeEnergyDifferences(uncertainty_method='svd-ew', return_theta = True)
    if P.verbose:
-      print "Matrix of free energy differences\nDeltaf_ij:\n%s\ndDeltaf_ij:\n%s" % (Deltaf_ij, dDeltaf_ij)
+      print("Matrix of free energy differences\nDeltaf_ij:\n%s\ndDeltaf_ij:\n%s" % (Deltaf_ij, dDeltaf_ij))
    if regular_estimate:
       if P.overlap:
-         print "The overlap matrix is..."
+         print("The overlap matrix is...")
          O = MBAR.computeOverlap()[2]
          for k in range(K):
             line = ''
             for l in range(K):
                line += ' %5.2f ' % O[k, l]
-            print line
+            print(line)
          plotOverlapMatrix(O)
-         print "\nFor a nicer figure look at 'O_MBAR.pdf'"
+         print("\nFor a nicer figure look at 'O_MBAR.pdf'")
       return (Deltaf_ij, dDeltaf_ij)
    return (Deltaf_ij[0,K-1]/P.beta_report, dDeltaf_ij[0,K-1]/P.beta_report)
 
@@ -473,7 +473,7 @@ def getSplines(lchange):
 
 def estimatePairs():
 
-   print ("Estimating the free energy change with %s..." % ', '.join(P.methods)).replace(', MBAR', '')
+   print(("Estimating the free energy change with %s..." % ', '.join(P.methods)).replace(', MBAR', ''))
    df_allk = list(); ddf_allk = list()
 
    for k in range(K-1):
@@ -602,7 +602,7 @@ def totalEnergies():
       startvdw = 0
    elif startcoul==endcoul:
       #There is no coulomb section
-      if P.verbose: print "No Coulomb transformation present."
+      if P.verbose: print("No Coulomb transformation present.")
       pass    
    else:
       startcoul = 0
@@ -630,7 +630,7 @@ def totalEnergies():
             elif segment == 'vdWaals':
                jlist = []
             elif segment == 'TOTAL':
-               jlist = range(n_components)
+               jlist = list(range(n_components))
 
             for j in jlist:
                lj = lchange[:,j]
@@ -664,19 +664,19 @@ def totalEnergies():
    # Display results.
    def printLine(str1, str2, d1=None, d2=None):
       """Fills out the results table linewise."""
-      print str1,
+      print(str1, end=' ')
       text = str1
       for name in P.methods:
          if d1 == 'plain':
-            print str2,
+            print(str2, end=' ')
             text += ' ' + str2
          if d1 == 'name':
-            print str2 % (name, P.units),
+            print(str2 % (name, P.units), end=' ')
             text += ' ' + str2 % (name, P.units)
          if d1 and d2:
-            print str2 % (d1[name]/P.beta_report, d2[name]/P.beta_report),
+            print(str2 % (d1[name]/P.beta_report, d2[name]/P.beta_report), end=' ')
             text += ' ' + str2 % (d1[name]/P.beta_report, d2[name]/P.beta_report)
-      print ''
+      print('')
       outtext.append(text + '\n')
       return
 
@@ -703,7 +703,7 @@ def totalEnergies():
       for i in range(len(segments)):
          printLine('%9s:  ' % segments[i], str_dat, dFs[i], ddFs[i])
       for i in remark:
-         print str_align.replace('I', ' ').format(i)
+         print(str_align.replace('I', ' ').format(i))
    else:
       printLine('%9s:  ' % segments[-1], str_dat, dFs[-1], ddFs[-1])
    # Store results.
@@ -719,15 +719,15 @@ def totalEnergies():
    P.ddFs     = ddFs
    P.dFs      = dFs
 
-   outfile = open(os.path.join(P.output_directory, '%s.pickle'%P.resultfilename), 'w')
+   outfile = open(os.path.join(P.output_directory, '%s.pickle'%P.resultfilename), 'wb')
    pickle.dump(P, outfile)
    outfile.close()
 
-   print '\n'+w*'*'
+   print('\n'+w*'*')
    for i in [" The above table has been stored in ", " "+P.output_directory+"/%s.txt "%P.resultfilename,
       " while the full-precision data ", " (along with the simulation profile) in ", " "+P.output_directory+"/%s.pickle "%P.resultfilename]:
-      print str_align.format('{:^40}'.format(i))
-   print w*'*'
+      print(str_align.format('{:^40}'.format(i)))
+   print(w*'*')
 
    return
 
@@ -818,33 +818,33 @@ def dF_t():
    F_df[-1], F_ddf[-1] = (Deltaf_ij[0,K-1]/P.beta_report, dDeltaf_ij[0,K-1]/P.beta_report)
    R_df[0], R_ddf[0]   = (Deltaf_ij[0,K-1]/P.beta_report, dDeltaf_ij[0,K-1]/P.beta_report)
    # Do the forward analysis.
-   print "Forward dF(t) analysis...\nEstimating the free energy change using the data up to"
+   print("Forward dF(t) analysis...\nEstimating the free energy change using the data up to")
    sta = nss_tf[0]
    for i in range(n_tf-2):
-      print "%60s ps..." % ts[i+1]
+      print("%60s ps..." % ts[i+1])
       fin = numpy.sum(nss_tf[:i+2],axis=0)
       N_k, u_kln = uncorrelate(nss_tf[0], numpy.sum(nss_tf[:i+2],axis=0))
       F_df[i], F_ddf[i] = estimatewithMBAR(u_kln, N_k, P.relative_tolerance)
    # Do the reverse analysis.
-   print "Reverse dF(t) analysis...\nUsing the data starting from"
+   print("Reverse dF(t) analysis...\nUsing the data starting from")
    fin = numpy.sum(nss_tf[:],axis=0)
    for i in range(n_tf-2):
-      print "%34s ps..." % ts[i+1]
+      print("%34s ps..." % ts[i+1])
       sta = numpy.sum(nss_tf[:i+2],axis=0)
       N_k, u_kln = uncorrelate(sta, fin)
       R_df[i+1], R_ddf[i+1] = estimatewithMBAR(u_kln, N_k, P.relative_tolerance)
 
-   print """\n   The free energies %s evaluated by using the trajectory
+   print("""\n   The free energies %s evaluated by using the trajectory
    snaphots corresponding to various time intervals for both the
-   reverse and forward (in parentheses) direction.\n""" % P.units
-   print "%s\n %20s %19s %20s\n%s" % (70*'-', 'Time interval, ps','Reverse', 'Forward', 70*'-')
-   print "%10s -- %s\n%10s -- %-10s %11.3f +- %5.3f %16s\n" % (ts[0], ts[-1], '('+ts[0], ts[0]+')', R_df[0], R_ddf[0], 'XXXXXX')
+   reverse and forward (in parentheses) direction.\n""" % P.units)
+   print("%s\n %20s %19s %20s\n%s" % (70*'-', 'Time interval, ps','Reverse', 'Forward', 70*'-'))
+   print("%10s -- %s\n%10s -- %-10s %11.3f +- %5.3f %16s\n" % (ts[0], ts[-1], '('+ts[0], ts[0]+')', R_df[0], R_ddf[0], 'XXXXXX'))
    for i in range(1, len(ts)-1):
-      print "%10s -- %s\n%10s -- %-10s %11.3f +- %5.3f %11.3f +- %5.3f\n" % (ts[i], ts[-1], '('+ts[0], ts[i]+')', R_df[i], R_ddf[i], F_df[i-1], F_ddf[i-1])
-   print "%10s -- %s\n%10s -- %-10s %16s %15.3f +- %5.3f\n%s" % (ts[-1], ts[-1], '('+ts[0], ts[-1]+')', 'XXXXXX', F_df[-1], F_ddf[-1], 70*'-')
+      print("%10s -- %s\n%10s -- %-10s %11.3f +- %5.3f %11.3f +- %5.3f\n" % (ts[i], ts[-1], '('+ts[0], ts[i]+')', R_df[i], R_ddf[i], F_df[i-1], F_ddf[i-1]))
+   print("%10s -- %s\n%10s -- %-10s %16s %15.3f +- %5.3f\n%s" % (ts[-1], ts[-1], '('+ts[0], ts[-1]+')', 'XXXXXX', F_df[-1], F_ddf[-1], 70*'-'))
 
    # Plot the forward and reverse dF(t); store the data points in the text file.
-   print "Plotting data to the file dF_t.pdf...\n\n"
+   print("Plotting data to the file dF_t.pdf...\n\n")
    plotdFvsTime([float(i) for i in ts[1:]], [float(i) for i in ts[:-1]], F_df, R_df, F_ddf, R_ddf)
    outtext = ["%12s %10s %-10s %17s %10s %s\n" % ('Time (ps)', 'Forward', P.units, 'Time (ps)', 'Reverse', P.units)]
    outtext+= ["%10s %11.3f +- %5.3f %18s %11.3f +- %5.3f\n" % (ts[1:][i], F_df[i], F_ddf[i], ts[:-1][i], R_df[i], R_ddf[i]) for i in range(len(F_df))]
@@ -944,7 +944,7 @@ def plotdFvsLambda():
       ax.xaxis.set_ticks_position('bottom')
       ax.yaxis.set_ticks_position('left')
 
-      for k, spine in ax.spines.items():
+      for k, spine in list(ax.spines.items()):
          spine.set_zorder(12.2)
 
       xs, ndx, dx = [0], 0, 0.001
@@ -1013,7 +1013,7 @@ def plotdFvsLambda():
       # Make sure the tick labels are not overcrowded.
       xs = numpy.array(xs)
       dl_mat = numpy.array([xs-i for i in xs])
-      ri = range(len(xs))
+      ri = list(range(len(xs)))
 
       def getInd(r=ri, z=[0]):
          primo = r[0]
@@ -1060,11 +1060,11 @@ def plotdFvsLambda():
       pl.close(fig)
       return
 
-   print "Plotting the free energy breakdown figure..."
+   print("Plotting the free energy breakdown figure...")
    plotdFvsLambda1()
    plotdFvsLambda2()
    if ('TI' in P.methods or 'TI-CUBIC' in P.methods):
-      print "Plotting the TI figure..."
+      print("Plotting the TI figure...")
       plotTI()
 
 #===================================================================================================
@@ -1074,7 +1074,7 @@ def plotdFvsLambda():
 def plotCFM(u_kln, N_k, num_bins=100):
    """A graphical representation of what Bennett calls 'Curve-Fitting Method'."""
 
-   print "Plotting the CFM figure..."
+   print("Plotting the CFM figure...")
    def leaveTicksOnlyOnThe(xdir, ydir, axis):
       dirs = ['left', 'right', 'top', 'bottom']
       axis.xaxis.set_ticks_position(xdir)
@@ -1094,7 +1094,7 @@ def plotCFM(u_kln, N_k, num_bins=100):
          ks = [int(l) for l in P.bSkipLambdaIndex.split('-')]
          ks = numpy.delete(numpy.arange(K+len(ks)), ks)
       else:
-         ks = range(K)
+         ks = list(range(K))
       for i, (xx_i, yy_i) in enumerate(yy):
          ax = pl.subplot(h, w, i+1)
          ax.plot(xx_i, yy_i, color='r', ls='-', lw=3, marker='o', mec='r')
@@ -1112,7 +1112,7 @@ def plotCFM(u_kln, N_k, num_bins=100):
       return
 
    def findOptimalMinMax(ar):
-      c = zip(*numpy.histogram(ar, bins=10))
+      c = list(zip(*numpy.histogram(ar, bins=10)))
       thr = int(ar.size/8.)
       mi, ma = ar.min(), ar.max()
       for (i,j) in c:
@@ -1202,8 +1202,8 @@ def main():
 
    # Timing.
    stime = ttt_time.time()
-   print "Started on %s" % ttt_time.asctime()
-   print 'Command line was: %s\n' % ' '.join(sys.argv)
+   print("Started on %s" % ttt_time.asctime())
+   print('Command line was: %s\n' % ' '.join(sys.argv))
 
    # Simulation profile P (to be stored in 'results.pickle') will amass information about the simulation.
    P = parser.parse_args()[0]
@@ -1236,7 +1236,7 @@ def main():
    else:
       from inspect import currentframe, getframeinfo
       lineno = getframeinfo(currentframe()).lineno
-      print "\n\n%s\n Looks like there is no yet proper parser to process your files. \n Please modify lines %d and %d of this script.\n%s\n\n" % (78*"*", lineno+3, lineno+4, 78*"*")
+      print("\n\n%s\n Looks like there is no yet proper parser to process your files. \n Please modify lines %d and %d of this script.\n%s\n\n" % (78*"*", lineno+3, lineno+4, 78*"*"))
       #### LINES TO BE MODIFIED
       #import YOUR_OWN_FILE_PARSER
       #nsnapshots, lv, dhdlt, u_klt = YOUR_OWN_FILE_PARSER.yourDataParser(*args, **kwargs)
@@ -1254,7 +1254,7 @@ def main():
    all_zeros = not numpy.any(dhdlt) and not numpy.any(u_klt)
 
    if all_zeros == True:
-      print "WARNING: Found all 0 in input data."
+      print("WARNING: Found all 0 in input data.")
       zero_output(K,P)
       if P.bForwrev:
          zero_dFt(K,P,nsnapshots)
@@ -1287,7 +1287,7 @@ def main():
       if not (u_kln is None):
          plotCFM(u_kln, N_k, 50)
 
-   print "\nTime spent: %s hours, %s minutes, and %s seconds.\nFinished on %s" % timeStatistics(stime)
+   print("\nTime spent: %s hours, %s minutes, and %s seconds.\nFinished on %s" % timeStatistics(stime))
 
 if __name__ == "__main__":
    main()
@@ -1295,3 +1295,4 @@ if __name__ == "__main__":
 #===================================================================================================
 #                                   End of the script
 #===================================================================================================
+
