@@ -22,7 +22,7 @@ invoke specifying the data directory to use with the command:
 
 For the denser lambda spacing with 38 total states, run
 
-`python alchemical_analysis.py -d data/3-methylindole-38steps -q xvg -p dhdl -u kJ`
+`python ../../alchemical_analysis/alchemical_analysis.py -d data/3-methylindole-38steps -q xvg -p dhdl -u kJ`
 
 Note that all these files were generated in gromacs with `calc-lambda-neighbors = -1`, where one calculates 
 the energy at all the other states.
@@ -33,7 +33,7 @@ is default for GROMACS. MBAR, however, cannot be run on this
 restricted data set.  The difference between these two files is
 automatically recognized. For an example, try:
 
-`python alchemical_analysis.py -d data/3-methylindole-11steps-neighbors`
+`python ../../alchemical_analysis/alchemical_analysis.py -d data/3-methylindole-11steps-neighbors`
 
 Note how all the output results are the same _except_ for MBAR, which
 is omitted from the calculation.
